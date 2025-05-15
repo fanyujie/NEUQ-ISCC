@@ -1,3 +1,4 @@
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
@@ -21,7 +22,26 @@ def macro_f1_eval(y_true, y_pred):
 
 # ==================== 数据预处理 ====================
 def load_and_preprocess():
-    train_df = pd.read_csv('D:/ISCC/基于网络流量的恶意攻击检测/train_data.csv')
+    import os
+    from pathlib import Path
+    
+    # 动态构建路径
+    current_dir = Path(__file__).parent  # 获取当前脚本所在目录
+    train_path = current_dir / "data" / "train_data.csv"
+    test_path = current_dir / "data" / "test_data.csv"
+    
+    # 路径诊断输出
+    print(f"当前脚本位置：{current_dir}")
+    print(f"训练文件预期路径：{train_path}")
+    print(f"测试文件预期路径：{test_path}")
+    
+    if not train_path.exists():
+        raise FileNotFoundError(f"训练数据未在以下路径找到：{train_path}")
+    if not test_path.exists():
+        raise FileNotFoundError(f"测试数据未在以下路径找到：{test_path}")
+
+    # 加载数据（使用更安全的路径构建方式）
+    train_df = pd.read_csv(str(train_path))  # 转换为字符串兼容旧版本pandas
     if 'id' in train_df.columns:
         train_df = train_df.drop('id', axis=1)
     
@@ -182,7 +202,7 @@ def main():
     final_labels = np.argmax(ensemble_probs, axis=1)
     
     # 生成提交文件
-    test_df = pd.read_csv('D:/ISCC/基于网络流量的恶意攻击检测/test_data.csv')
+    test_df = pd.read_csv('data\\test_data.csv')
     test_ids = test_df['id']
     
     # 对测试集进行预测
